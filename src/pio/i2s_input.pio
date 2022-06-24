@@ -1,0 +1,54 @@
+
+
+; These programs implement I2S input, with a SCK period of ~ clock
+; cycles.
+
+
+; Pin assignments:
+; - SCK is side-set pin 0
+; - WS is SET pin 0
+; - sd is IN pin 0
+
+.program i2s_input
+.side_set 1 opt
+
+
+	set x, 31
+left_loop:
+	set pins, 0 side 0 [2]
+	nop side 1
+	in pins, 1
+	jmp x-- left_loop
+
+	set x, 31
+right_loop:
+	set pins, 1 side 0 [2]
+	nop side 1
+	in pins, 1
+	jmp x-- right_loop
+
+% c-sdk {
+#include "hardware/gpio.h"
+#include "hardware/clocks.h"
+static inline void pio_i2s_input_init(PIO pio, uint sm, uint prog_offs, uint pin_sck, uint pin_ws, uint pin_sd, float freq) {
+    pio_sm_config c = i2s_input_program_get_default_config(prog_offs);
+    sm_config_set_set_pins(&c, pin_ws, 1);
+    sm_config_set_in_pins(&c, pin_sd);
+    sm_config_set_sideset_pins(&c, pin_sck);
+    sm_config_set_in_shift(&c, false, true, 32);
+    int cycles_per_word = 6 * 64 + 2;
+    float div = clock_get_hz(clk_sys) / (freq * cycles_per_word);
+    sm_config_set_clkdiv(&c, div);
+
+    pio_gpio_init(pio, pin_sd);
+    pio_gpio_init(pio, pin_ws);
+    pio_gpio_init(pio, pin_sck);
+    pio_sm_set_pindirs_with_mask(pio, sm, (1u << pin_sck) | (1u << pin_ws), (1u << pin_sck) | (1u << pin_ws) | (1u << pin_sd));
+
+    sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_RX);
+
+    pio_sm_init(pio, sm, prog_offs, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}
+
