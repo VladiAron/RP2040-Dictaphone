@@ -77,10 +77,8 @@ void serial_init_uart(){
 	uart_set_hw_flow(UART_ID, false, false);
 	uart_set_fifo_enabled(UART_ID, false);
 
-	int UART_IRQ = UART0_IRQ;
-	irq_set_exclusive_handler(UART_IRQ, on_uart_rx);
-	irq_set_enabled(UART_IRQ, true);
+	irq_set_exclusive_handler(UART0_IRQ, on_uart_rx);
+	irq_set_enabled(UART0_IRQ, true);
 
-	// Now enable the UART to send interrupts - RX only
 	uart_set_irq_enables(UART_ID, true, false);
 }

@@ -72,13 +72,13 @@ void start_record(){
 	if(isRecording == true){
 		return;
 	}
-	isRecording = true;
 	if(storage_create_file() != 1){
 		UART_LOG("Can't create file\n\r");
 		return;
 	}
 	irq_set_enabled(DMA_IRQ_1, true);
 	dma_channel_start(dma_chan);
+	isRecording = true;
 }
 
 void stop_record(){

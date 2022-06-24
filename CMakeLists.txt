@@ -30,7 +30,7 @@ target_sources(${TARGET_NAME} PUBLIC src/main.c ${${TARGET_NAME}_SRC})
 
 pico_generate_pio_header(${TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/src/pio/i2s_input.pio)
 
-pico_enable_stdio_usb(${TARGET_NAME} 1)
+pico_enable_stdio_usb(${TARGET_NAME} 0)
 pico_enable_stdio_uart(${TARGET_NAME} 1)
 
 target_link_libraries(${TARGET_NAME} pico_stdlib hardware_pio FatFs_SPI)
